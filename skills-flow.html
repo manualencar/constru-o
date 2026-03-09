@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluxo de Skills</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f1117;
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .canvas {
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .title {
+    text-align: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 48px;
+  }
+
+  /* PHASES */
+  .phase {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+
+  .phase-label {
+    width: 110px;
+    flex-shrink: 0;
+    padding-top: 16px;
+    text-align: right;
+  }
+
+  .phase-label span {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #4b5563;
+  }
+
+  .phase-content {
+    flex: 1;
+  }
+
+  /* CONNECTOR LINE */
+  .connector {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 8px;
+  }
+
+  .connector-spacer {
+    width: 110px;
+    flex-shrink: 0;
+  }
+
+  .connector-line {
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+  }
+
+  .arrow-down {
+    width: 2px;
+    height: 28px;
+    background: linear-gradient(to bottom, #374151, #1f2937);
+    position: relative;
+    margin-left: 60px;
+  }
+
+  .arrow-down::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: -4px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid #374151;
+  }
+
+  /* SKILL CARD */
+  .skill-card {
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .skill-card:hover {
+    transform: translateX(3px);
+  }
+
+  .skill-card.purple {
+    background: #1e1033;
+    border-color: #4c1d95;
+  }
+  .skill-card.purple:hover { border-color: #7c3aed; }
+
+  .skill-card.blue {
+    background: #0c1a2e;
+    border-color: #1e3a5f;
+  }
+  .skill-card.blue:hover { border-color: #2563eb; }
+
+  .skill-card.teal {
+    background: #0d1f1f;
+    border-color: #134e4a;
+  }
+  .skill-card.teal:hover { border-color: #0d9488; }
+
+  .skill-card.orange {
+    background: #1c1208;
+    border-color: #78350f;
+  }
+  .skill-card.orange:hover { border-color: #d97706; }
+
+  .skill-card.gray {
+    background: #111827;
+    border-color: #1f2937;
+    opacity: 0.7;
+  }
+
+  .skill-icon {
+    font-size: 22px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  .skill-body {
+    flex: 1;
+  }
+
+  .skill-name {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 4px;
+  }
+
+  .purple .skill-name { color: #a78bfa; }
+  .blue .skill-name { color: #60a5fa; }
+  .teal .skill-name { color: #2dd4bf; }
+  .orange .skill-name { color: #fbbf24; }
+  .gray .skill-name { color: #6b7280; }
+
+  .skill-desc {
+    font-size: 12px;
+    color: #9ca3af;
+    line-height: 1.5;
+  }
+
+  .skill-trigger {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+
+  .purple .tag { background: #2e1065; color: #c4b5fd; border: 1px solid #4c1d95; }
+  .blue .tag { background: #0f2340; color: #93c5fd; border: 1px solid #1e3a5f; }
+  .teal .tag { background: #0f2a29; color: #5eead4; border: 1px solid #134e4a; }
+  .orange .tag { background: #1c1208; color: #fcd34d; border: 1px solid #78350f; }
+
+  /* FORK — ADR branch */
+  .fork-container {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  .fork-connector {
+    width: 110px;
+    flex-shrink: 0;
+  }
+
+  .fork-body {
+    flex: 1;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .fork-main {
+    flex: 1;
+  }
+
+  .fork-branch {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .branch-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 28px;
+    margin-right: 12px;
+  }
+
+  .branch-horizontal {
+    width: 24px;
+    height: 2px;
+    background: #374151;
+  }
+
+  .branch-label {
+    font-size: 9px;
+    color: #4b5563;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    white-space: nowrap;
+  }
+
+  /* MULTI CONTEXT section */
+  .multi-context {
+    background: #111827;
+    border: 1px dashed #374151;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 8px;
+  }
+
+  .multi-context-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 12px;
+  }
+
+  .multi-sources {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .source-pill {
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #1f2937;
+    color: #9ca3af;
+    border: 1px solid #374151;
+  }
+
+  .multi-arrow {
+    font-size: 16px;
+    color: #4b5563;
+    margin-bottom: 8px;
+  }
+
+  /* LEGEND */
+  .legend {
+    margin-top: 40px;
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  .legend-dot.purple { background: #7c3aed; }
+  .legend-dot.blue { background: #2563eb; }
+  .legend-dot.teal { background: #0d9488; }
+  .legend-dot.orange { background: #d97706; }
+  .legend-dot.dashed { background: transparent; border: 1px dashed #6b7280; }
+
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin: 16px 0;
+  }
+
+  .divider-spacer { width: 110px; flex-shrink: 0; }
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: #1f2937;
+  }
+  .divider-text {
+    font-size: 10px;
+    color: #4b5563;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <div class="title">Ecossistema de Skills — Fluxo de Uso</div>
+
+  <!-- SECTION: MÚLTIPLAS CONVERSAS -->
+  <div class="section-divider">
+    <div class="divider-spacer"></div>
+    <div class="divider-line"></div>
+    <div class="divider-text">ponto de entrada opcional</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-label"><span>Consolidar</span></div>
+    <div class="phase-content">
+      <div class="multi-context">
+        <div class="multi-context-title">Múltiplas conversas sobre o mesmo produto</div>
+        <div class="multi-sources">
+          <div class="source-pill">💬 Conversa de produto</div>
+          <div class="source-pill">💬 Conversa de tecnologia</div>
+          <div class="source-pill">💬 Conversa de negócio</div>
+          <div class="source-pill">💬 ...</div>
+        </div>
+        <div class="multi-arrow">↓</div>
+        <div class="skill-card" style="background:#13111c; border-color:#374151; padding: 12px 16px;">
+          <div class="skill-icon">🔄</div>
+          <div class="skill-body">
+            <div class="skill-name" style="color:#9ca3af;">context-checkpoint</div>
+            <div class="skill-desc">Modo multi-conversa — consolida, deduplica e detecta conflitos entre fontes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARROW -->
+  <div class="connector"><div class="connector-spacer"></div><div class="connector-line"><div class="arrow-down"></div></div></div>
+
+  <!-- SECTION DIVIDER -->
+  <div class="section-divider">
+    <div class="divider-spacer"></div>
+    <div class="divider-line"></div>
+    <div class="divider-text">início do ciclo de desenvolvimento</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- 1. PRD -->
+  <div class="phase">
+    <div class="phase-label"><span>Produto</span></div>
+    <div class="phase-content">
+      <div class="skill-card purple">
+        <div class="skill-icon">📋</div>
+        <div class="skill-body">
+          <div class="skill-name">prd-generator</div>
+          <div class="skill-desc">O quê construir — features, fluxos, regras de negócio, edge cases, integrações</div>
+          <div class="skill-trigger">
+            <span class="tag">criar PRD</span>
+            <span class="tag">especificar produto</span>
+            <span class="tag">documentar requisitos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARROW -->
+  <div class="connector"><div class="connector-spacer"></div><div class="connector-line"><div class="arrow-down"></div></div></div>
+
+  <!-- 2. ARCHITECTURE SPEC + ADR FORK -->
+  <div class="phase">
+    <div class="phase-label"><span>Arquitetura</span></div>
+    <div class="phase-content">
+      <div class="fork-body">
+        <div class="fork-main">
+          <div class="skill-card blue">
+            <div class="skill-icon">🏗️</div>
+            <div class="skill-body">
+              <div class="skill-name">architecture-spec-builder</div>
+              <div class="skill-desc">Como construir — módulos, RNFs, integrações, decisões técnicas, riscos → gera .docx</div>
+              <div class="skill-trigger">
+                <span class="tag">spec técnico</span>
+                <span class="tag">arquitetura do projeto</span>
+                <span class="tag">design doc</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:center; padding-top:28px; margin: 0 4px;">
+          <div style="font-size:9px; color:#4b5563; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:6px; white-space:nowrap;">decisão<br>complexa</div>
+          <div style="width:32px; height:2px; background:#374151;"></div>
+        </div>
+
+        <div style="padding-top: 16px; min-width: 180px;">
+          <div class="skill-card" style="background:#0f1c0f; border-color:#14532d; min-width:180px;">
+            <div class="skill-icon">📝</div>
+            <div class="skill-body">
+              <div class="skill-name" style="color:#4ade80;">adr-builder</div>
+              <div class="skill-desc" style="font-size:11px;">Trade-offs, alternativas descartadas, suposições implícitas</div>
+              <div style="margin-top:8px;">
+                <span style="font-size:10px; padding:2px 8px; border-radius:99px; background:#14532d; color:#86efac; border:1px solid #15803d;">criar ADR</span>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:10px; color:#374151; text-align:center; margin-top:6px;">↩ referenciado no spec</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARROW -->
+  <div class="connector"><div class="connector-spacer"></div><div class="connector-line"><div class="arrow-down"></div></div></div>
+
+  <!-- 3. SUPABASE DATA MODELER -->
+  <div class="phase">
+    <div class="phase-label"><span>Dados</span></div>
+    <div class="phase-content">
+      <div class="skill-card teal">
+        <div class="skill-icon">🗄️</div>
+        <div class="skill-body">
+          <div class="skill-name">supabase-data-modeler</div>
+          <div class="skill-desc">Estrutura de dados — tabelas, PKs/FKs, indexes, RLS por papel, migrations SQL → aplica via MCP</div>
+          <div class="skill-trigger">
+            <span class="tag">modelagem</span>
+            <span class="tag">schema</span>
+            <span class="tag">RLS</span>
+            <span class="tag">migrations</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARROW -->
+  <div class="connector"><div class="connector-spacer"></div><div class="connector-line"><div class="arrow-down"></div></div></div>
+
+  <!-- 4. FUNCTIONS (FUTURO) -->
+  <div class="phase">
+    <div class="phase-label"><span>Lógica</span></div>
+    <div class="phase-content">
+      <div class="skill-card orange" style="opacity: 0.6;">
+        <div class="skill-icon">⚡</div>
+        <div class="skill-body">
+          <div class="skill-name">supabase-functions-builder</div>
+          <div class="skill-desc">Lógica de servidor — Edge Functions, triggers, RPCs, padrões de segurança</div>
+          <div style="margin-top:8px;">
+            <span style="font-size:10px; padding:2px 10px; border-radius:99px; background:#1c1208; color:#d97706; border:1px dashed #78350f;">🔜 a construir após projeto real</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION DIVIDER -->
+  <div class="section-divider" style="margin-top: 24px;">
+    <div class="divider-spacer"></div>
+    <div class="divider-line"></div>
+    <div class="divider-text">a qualquer momento</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- CONTEXT CHECKPOINT -->
+  <div class="phase">
+    <div class="phase-label"><span>Memória</span></div>
+    <div class="phase-content">
+      <div class="skill-card gray">
+        <div class="skill-icon">💾</div>
+        <div class="skill-body">
+          <div class="skill-name">context-checkpoint</div>
+          <div class="skill-desc">Captura decisões, progresso e próximos passos para continuar em nova sessão sem perder contexto</div>
+          <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+            <span style="font-size:10px; padding:2px 8px; border-radius:99px; background:#1f2937; color:#9ca3af; border:1px solid #374151;">limpar contexto</span>
+            <span style="font-size:10px; padding:2px 8px; border-radius:99px; background:#1f2937; color:#9ca3af; border:1px solid #374151;">nova etapa</span>
+            <span style="font-size:10px; padding:2px 8px; border-radius:99px; background:#1f2937; color:#9ca3af; border:1px solid #374151;">consolidar conversas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot purple"></div>produto</div>
+    <div class="legend-item"><div class="legend-dot blue"></div>arquitetura</div>
+    <div class="legend-item"><div class="legend-dot teal"></div>dados</div>
+    <div class="legend-item"><div class="legend-dot orange"></div>lógica (futuro)</div>
+    <div class="legend-item"><div class="legend-dot dashed"></div>transversal</div>
+  </div>
+
+</div>
+</body>
+</html>
