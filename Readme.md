@@ -21,8 +21,14 @@ architecture-spec-builder   ←── COMO construir (módulos, RNFs, decisões)
         ▼
 supabase-data-modeler       ←── estrutura de dados (tabelas, RLS, migrations)
         │
+        │         └──→ prototype-briefing-generator   ←── para lovable Versão 0 
+        ▼
+        ui-design-system  ←── tokens, componentes, telas-chave
+        │
+        │
         ▼
 supabase-functions-builder  ←── lógica de servidor (🔜 em construção)
+
 ```
 
 > **`context-checkpoint`** pode ser acionado a qualquer momento para preservar o estado entre sessões.
@@ -67,6 +73,11 @@ Modela e implementa a estrutura de dados completa no Supabase. Inclui entrevista
 **Quando usar:** criar ou evoluir o banco de dados, definir RLS, gerar migrations  
 **Output:** migrations `.sql` versionadas + documentação do schema  
 **Integração:** aplica diretamente via MCP do Supabase, ou exporta arquivos para download
+
+---
+
+### prototype-briefing-generator
+Acionada no final do ciclo de especificação — após prd-generator, architecture-spec-builder e supabase-data-modeler — esta skill transforma os artefatos produzidos nas etapas anteriores em um briefing estruturado para ferramentas de prototipação rápida como Lovable, Bolt ou v0. O documento gerado define o escopo mínimo da Fase 0 (o que construir e, tão importante, o que não construir), incorpora diretamente o SQL e as políticas RLS produzidos pela supabase-data-modeler sem reescrever, estabelece as regras de segurança e os padrões de código que tornam a migração para o app nativo simples e barata, e entrega um prompt de início pronto para colar na ferramenta. Use quando o usuário mencionar "vou começar no Lovable", "quero prototipar no Bolt", "briefing para a ferramenta de prototipação" ou qualquer variação de "quero começar a codar antes de ir para o app nativo".
 
 ---
 
