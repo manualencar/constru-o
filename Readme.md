@@ -76,6 +76,18 @@ Modela e implementa a estrutura de dados completa no Supabase. Inclui entrevista
 
 ---
 
+###  heckpoint-ui-design-flow  - UI / Design System
+Posição no fluxo: após supabase-data-modeler, antes de prototype-briefing-generator
+Antes de iniciar o design system, rodar o processo de benchmark em 3 camadas:
+
+Inventário — reclassificar referências coletadas por decisão (navegação, densidade, cor, tipografia, estados)
+Padrões de mercado — mapear o que é padrão no segmento do produto e decidir o que seguir ou quebrar com intenção
+Decisões com justificativa — registrar cada escolha visual com referência, motivo e alternativa descartada
+
+Output: doc de decisões visuais com 6–8 itens — alimenta diretamente o design system e o prototype-briefing-generator.
+
+Arquivo de referência: checkpoint-ui-design-flow.md
+---
 ### prototype-briefing-generator
 Acionada no final do ciclo de especificação — após prd-generator, architecture-spec-builder e supabase-data-modeler — esta skill transforma os artefatos produzidos nas etapas anteriores em um briefing estruturado para ferramentas de prototipação rápida como Lovable, Bolt ou v0. O documento gerado define o escopo mínimo da Fase 0 (o que construir e, tão importante, o que não construir), incorpora diretamente o SQL e as políticas RLS produzidos pela supabase-data-modeler sem reescrever, estabelece as regras de segurança e os padrões de código que tornam a migração para o app nativo simples e barata, e entrega um prompt de início pronto para colar na ferramenta. Use quando o usuário mencionar "vou começar no Lovable", "quero prototipar no Bolt", "briefing para a ferramenta de prototipação" ou qualquer variação de "quero começar a codar antes de ir para o app nativo".
 
